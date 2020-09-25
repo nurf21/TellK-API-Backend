@@ -1,7 +1,7 @@
 const connection = require('../config/mysql')
 
 module.exports = {
-  checkUserByEmail: (email) => {
+  getUserByEmail: (email) => {
     return new Promise((resolve, reject) => {
       connection.query(
         'SELECT * FROM user WHERE user_email = ?',
@@ -12,7 +12,7 @@ module.exports = {
       )
     })
   },
-  regUser: (data) => {
+  postUser: (data) => {
     return new Promise((resolve, reject) => {
       connection.query('INSERT INTO user SET ?', data, (err, res) => {
         if (!err) {

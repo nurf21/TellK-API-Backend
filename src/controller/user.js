@@ -1,12 +1,13 @@
 const bcrypt = require('bcrypt')
 const helper = require('../helper')
-const { checkUserByEmail, regUser } = require('../model/user')
+const jwt = require('jsonwebtoken')
+const { getUserByEmail, postUser } = require('../model/user')
 
 module.exports = {
   regUser: async (req, res) => {
     const salt = bcrypt.genSaltSync(8)
     const encryptPassword = bcrypt.hashSync(req.body.user_password, salt)
-    const checkEmail = await checkUserByEmail(req.body.user_email)
+    const checkEmail = await getUserByEmail(req.body.user_email)
     const setData = {
       user_name: req.body.user_name,
       user_email: req.body.user_email,
@@ -33,11 +34,50 @@ module.exports = {
       ) {
         return helper.response(res, 400, 'Invalid phone number')
       } else {
-        const result = await regUser(setData)
-        return helper.response(res, 200, 'Success Register User', result)
+        const result = await postUser(setData)
+        return helper.response(res, 200, 'Register Success', result)
       }
     } catch (err) {
       return helper.response(res, 400, 'Bad Request')
     }
+  },
+  loginUser: async (req, res) => {
+    try {
+      const checkEmail = await getUserByEmail(req.body.user_email)
+      if (checkEmail.length < 1) {
+        return helper.response(res, 400, 'Email is not registered')
+      } else {
+        const checkPassword = bcrypt.compareSync(
+          req.body.user_password,
+          checkEmail[0].user_password
+        )
+        if (!checkPassword) {
+          return helper.response(res, 400, 'Wrong password')
+        } else {
+          let payload = {
+            user_id: checkEmail[0].user_id,
+            user_name: checkEmail[0].user_name,
+            user_email: checkEmail[0].user_email,
+            user_image: checkEmail[0].user_image,
+            user_phone: checkEmail[0].user_phone,
+            user_lat: checkEmail[0].user_lat,
+            user_lng: checkEmail[0].user_lng
+          }
+          if (checkEmail[0].user_status === 0) {
+            return helper.response(
+              res,
+              400,
+              'Your account is not activaed, please check your Email'
+            )
+          } else {
+            const token = jwt.sign(payload, process.env.KEY, {
+              expiresIn: '6h'
+            })
+            payload = { ...payload, token }
+            return helper.response(res, 200, 'Login Success', payload)
+          }
+        }
+      }
+    } catch (err) {}
   }
 }
