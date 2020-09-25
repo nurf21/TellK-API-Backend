@@ -1,7 +1,13 @@
 const bcrypt = require('bcrypt')
 const helper = require('../helper')
 const jwt = require('jsonwebtoken')
-const { getUserByEmail, postUser } = require('../model/user')
+const fs = require('fs')
+const {
+  getUserByEmail,
+  postUser,
+  getUserById,
+  patchUser
+} = require('../model/user')
 
 module.exports = {
   regUser: async (req, res) => {
@@ -78,6 +84,70 @@ module.exports = {
           }
         }
       }
-    } catch (err) {}
+    } catch (err) {
+      return helper.response(res, 400, 'Bad Request')
+    }
+  },
+  getUserById: async (req, res) => {
+    const { id } = req.params
+    try {
+      const result = await getUserById(id)
+      return helper.response(res, 200, 'Get User by Id Success', result)
+    } catch (err) {
+      return helper.response(res, 400, 'Bad Request')
+    }
+  },
+  patchImageUser: async (req, res) => {
+    const { id } = req.params
+    try {
+      const setData = {
+        user_image: req.file.filename
+      }
+      const checkId = await getUserById(id)
+      if (checkId.length > 0) {
+        if (
+          checkId[0].user_image === 'blank-profile.jpg' ||
+          req.file == undefined
+        ) {
+          const result = await patchUser(setData, id)
+          return helper.response(res, 201, 'Profile Photo Updated', result)
+        } else {
+          fs.unlink(`./uploads/${checkId[0].user_image}`, async (error) => {
+            if (error) {
+              throw error
+            } else {
+              const result = await patchUser(setData, id)
+              return helper.response(res, 201, 'Profile Photo Updated', result)
+            }
+          })
+        }
+      } else {
+        return helper.response(res, 404, 'User not found')
+      }
+    } catch (err) {
+      return helper.response(res, 400, 'Bad Request', err)
+    }
+  },
+  patchUserProfile: async (req, res) => {
+    const { id } = req.params
+    try {
+      const setData = {
+        user_name: req.body.user_name,
+        user_phone: req.body.user_phone
+      }
+      if (setData.user_phone.length < 10 || setData.user_phone.length > 13) {
+        return helper.response(res, 400, 'Invalid phone number')
+      } else {
+        const checkId = await getUserById(id)
+        if (checkId.length > 0) {
+          const result = await await patchUser(setData, id)
+          return helper.response(res, 201, 'Profile Updated', result)
+        } else {
+          return helper.response(res, 404, 'User not found')
+        }
+      }
+    } catch (err) {
+      return helper.response(res, 400, 'Bad Request', err)
+    }
   }
 }
