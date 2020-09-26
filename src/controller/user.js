@@ -165,5 +165,22 @@ module.exports = {
     } catch (err) {
       return helper.response(res, 400, 'Bad Request', err)
     }
+  },
+  getUserByEmail: async (req, res) => {
+    const { email } = req.params
+    try {
+      const result = await getUserByEmail(email)
+      if (result.length > 0) {
+        delete result[0].user_password
+        delete result[0].user_key
+        delete result[0].user_status
+        delete result[0].user_created_at
+        delete result[0].user_updated_at
+      }
+      return helper.response(res, 200, 'Get User by Email Success', result)
+    } catch (err) {
+      console.log(err)
+      return helper.response(res, 400, 'Bad Request')
+    }
   }
 }

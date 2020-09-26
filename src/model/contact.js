@@ -13,6 +13,13 @@ module.exports = {
       )
     })
   },
+  postContact: (setData) => {
+    return new Promise((resolve, reject) => {
+      connection.query('INSERT INTO contact SET ?', setData, (err, res) => {
+        !err ? resolve(res) : reject(new Error(err))
+      })
+    })
+  },
   deleteContact: (id, targetId) => {
     return new Promise((resolve, reject) => {
       connection.query(

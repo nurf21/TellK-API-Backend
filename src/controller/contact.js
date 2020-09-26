@@ -1,5 +1,9 @@
 const helper = require('../helper')
-const { getContactById, deleteContact } = require('../model/contact')
+const {
+  getContactById,
+  postContact,
+  deleteContact
+} = require('../model/contact')
 
 module.exports = {
   getContactById: async (req, res) => {
@@ -11,6 +15,19 @@ module.exports = {
       }
       const result = await getContactById(id, keyword)
       return helper.response(res, 200, 'Get Contact Success', result)
+    } catch (err) {
+      return helper.response(res, 400, 'Bad Request')
+    }
+  },
+  addContact: async (req, res) => {
+    try {
+      const setData = {
+        user_id: req.body.user_id,
+        target_id: req.body.target_id,
+        contact_created_at: new Date()
+      }
+      const result = await postContact(setData)
+      return helper.response(res, 200, 'Add Contact Success', result)
     } catch (err) {
       return helper.response(res, 400, 'Bad Request')
     }

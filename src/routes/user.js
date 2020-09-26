@@ -1,6 +1,7 @@
 const router = require('express').Router()
 const {
   getUserById,
+  getUserByEmail,
   regUser,
   loginUser,
   patchImageUser,
@@ -10,6 +11,7 @@ const {
 const uploadImage = require('../middleware/multer')
 
 router.get('/:id', getUserById)
+router.get('/search/:email', getUserByEmail)
 
 router.post('/register', regUser)
 router.post('/login', loginUser)
