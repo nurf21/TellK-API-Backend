@@ -12,5 +12,16 @@ module.exports = {
         }
       )
     })
+  },
+  deleteContact: (id, targetId) => {
+    return new Promise((resolve, reject) => {
+      connection.query(
+        'DELETE from contact WHERE user_id = ? AND target_id = ?',
+        [id, targetId],
+        (err, res) => {
+          !err ? resolve(res) : reject(new Error(err))
+        }
+      )
+    })
   }
 }

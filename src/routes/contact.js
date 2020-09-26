@@ -1,6 +1,7 @@
 const router = require('express').Router()
-const { getContactById } = require('../controller/contact')
+const { getContactById, deleteContact } = require('../controller/contact')
 
 router.get('/:id', getContactById)
+router.delete('/', deleteContact)
 
 module.exports = router
