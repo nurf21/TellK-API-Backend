@@ -101,7 +101,8 @@ module.exports = {
     const { id } = req.params
     try {
       const setData = {
-        user_image: req.file.filename
+        user_image: req.file.filename,
+        user_updated_at: new Date()
       }
       const checkId = await getUserById(id)
       if (checkId.length > 0) {
@@ -133,7 +134,8 @@ module.exports = {
     try {
       const setData = {
         user_name: req.body.user_name,
-        user_phone: req.body.user_phone
+        user_phone: req.body.user_phone,
+        user_updated_at: new Date()
       }
       if (setData.user_phone.length < 10 || setData.user_phone.length > 13) {
         return helper.response(res, 400, 'Invalid phone number')
@@ -146,6 +148,20 @@ module.exports = {
           return helper.response(res, 404, 'User not found')
         }
       }
+    } catch (err) {
+      return helper.response(res, 400, 'Bad Request', err)
+    }
+  },
+  patchLocation: async (req, res) => {
+    const { id } = req.params
+    try {
+      const setData = {
+        user_lat: req.body.lat,
+        user_lng: req.body.lng,
+        user_updated_at: new Date()
+      }
+      const result = await patchUser(setData, id)
+      return helper.response(res, 201, 'Location Updated', result)
     } catch (err) {
       return helper.response(res, 400, 'Bad Request', err)
     }
