@@ -1,5 +1,5 @@
 const helper = require('../helper')
-const { getRoomByUserId, getRoomByRoomId } = require('../model/room')
+const { getRoomByUserId, getRoomByRoomId, postRoom } = require('../model/room')
 
 module.exports = {
   getRoomByUserId: async (req, res) => {
@@ -16,6 +16,26 @@ module.exports = {
         result4 = result4.concat(result3)
       }
       return helper.response(res, 200, 'Get Room Success', result4)
+    } catch (err) {
+      return helper.response(res, 400, 'Bad Request')
+    }
+  },
+  createRoom: async (req, res) => {
+    try {
+      const roomId = Math.round(Math.random() * 100000)
+      const setData1 = {
+        room_id: roomId,
+        user_id: req.body.user_id,
+        room_created_at: new Date()
+      }
+      await postRoom(setData1)
+      const setData2 = {
+        room_id: roomId,
+        user_id: req.body.target_id,
+        room_created_at: new Date()
+      }
+      await postRoom(setData2)
+      return helper.response(res, 200, 'Room Created', roomId)
     } catch (err) {
       console.log(err)
       return helper.response(res, 400, 'Bad Request')

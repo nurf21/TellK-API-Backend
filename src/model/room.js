@@ -22,5 +22,12 @@ module.exports = {
         }
       )
     })
+  },
+  postRoom: (setData) => {
+    return new Promise((resolve, reject) => {
+      connection.query('INSERT INTO room SET ?', setData, (err, res) => {
+        !err ? resolve(res) : reject(new Error(err))
+      })
+    })
   }
 }
