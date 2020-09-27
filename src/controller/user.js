@@ -179,7 +179,6 @@ module.exports = {
       }
       return helper.response(res, 200, 'Get User by Email Success', result)
     } catch (err) {
-      console.log(err)
       return helper.response(res, 400, 'Bad Request')
     }
   }
