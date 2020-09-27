@@ -14,7 +14,21 @@ const server = http.createServer(app)
 const io = socket(server)
 
 io.on('connection', (socket) => {
-  console.log('Socket.io Connect !')
+  console.log('Socket.io connected')
+
+  socket.on('joinRoom', (data) => {
+    socket.join(data)
+    socket.broadcast.to(data).emit('chatMessage', {
+      message: 'Welcome',
+      class: 'sender',
+      room: data
+    })
+  })
+
+  socket.on('roomMessage', (data) => {
+    socket.join(data.room)
+    socket.broadcast.to(data.room).emit('chatMessage', data)
+  })
 })
 
 app.use(bodyParser.json())
