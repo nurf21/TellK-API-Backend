@@ -18,15 +18,10 @@ io.on('connection', (socket) => {
 
   socket.on('joinRoom', (data) => {
     socket.join(data)
-    socket.broadcast.to(data).emit('chatMessage', {
-      message: 'Welcome',
-      class: 'sender',
-      room: data
-    })
   })
 
   socket.on('roomMessage', (data) => {
-    socket.join(data.room)
+    // socket.join(data.room)
     socket.broadcast.to(data.room).emit('chatMessage', data)
   })
 })
