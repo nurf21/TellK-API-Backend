@@ -21,7 +21,6 @@ io.on('connection', (socket) => {
   })
 
   socket.on('roomMessage', (data) => {
-    // socket.join(data.room)
     socket.broadcast.to(data.room).emit('chatMessage', data)
   })
 

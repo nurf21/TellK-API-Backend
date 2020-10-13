@@ -1,5 +1,6 @@
 const helper = require('../helper')
 const { getMessageByRoomId, postMessage } = require('../model/message')
+const { patchRoom } = require('../model/room')
 
 module.exports = {
   getMessageByRoomId: async (req, res) => {
@@ -27,6 +28,10 @@ module.exports = {
         message_created_at: new Date()
       }
       await postMessage(setData)
+      const setDataRoom = {
+        room_updated_at: new Date()
+      }
+      await patchRoom(setDataRoom, req.body.roomId)
       return helper.response(res, 200, 'Message Sent')
     } catch (err) {
       return helper.response(res, 400, 'Bad Request')

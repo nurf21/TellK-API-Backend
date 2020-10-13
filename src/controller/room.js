@@ -61,7 +61,6 @@ module.exports = {
       await postRoom(setData2)
       return helper.response(res, 200, 'Room Created', roomId)
     } catch (err) {
-      console.log(err)
       return helper.response(res, 400, 'Bad Request')
     }
   }
