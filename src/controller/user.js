@@ -2,11 +2,13 @@ const bcrypt = require('bcrypt')
 const helper = require('../helper')
 const jwt = require('jsonwebtoken')
 const fs = require('fs')
+const nodemailer = require('nodemailer')
 const {
   getUserByEmail,
   postUser,
   getUserById,
-  patchUser
+  patchUser,
+  getUserByKey
 } = require('../model/user')
 
 module.exports = {
@@ -180,6 +182,84 @@ module.exports = {
       return helper.response(res, 200, 'Get User by Email Success', result)
     } catch (err) {
       return helper.response(res, 400, 'Bad Request')
+    }
+  },
+  forgotPassword: async (request, response) => {
+    const { email } = request.body
+    const key = Math.round(Math.random() * 100000)
+    try {
+    const checkUser = await getUserByEmail(email)
+    if (checkUser.length < 1) {
+      return helper.response(response, 400, 'Email is not registered')
+    } else {
+      const setData = {
+        user_key: key,
+        user_updated_at: new Date()
+      }
+      await patchUser(setData, checkUser[0].user_id)
+      const transporter = nodemailer.createTransport({
+        host: 'smtp.gmail.com',
+        port: 465,
+        secure: true,
+        auth: {
+          user: process.env.USER,
+          pass: process.env.PASS
+        }
+      })
+      const newLocal = (await transporter.sendMail({
+        from: '"TellK"',
+        to: email,
+        subject: 'TellK - Forgot Password',
+        html: `Click <a href="${process.env.URL}/reset?key=${key}">here</a> to reset your password.`
+      }),
+      function (error) {
+        if (error) {
+          return helper.response(response, 400, 'Failed to send email')
+        }
+      })
+      return helper.response(response, 200, 'Email sent. Please check your inbox', newLocal)
+    }
+    } catch (error) {
+      return helper.response(response, 400, 'Bad Request', error)
+    }
+  },
+  resetPassword: async (request, response) => {
+    const { key, newPassword, confirmPassword } = request.body
+    try {
+      if (newPassword.length < 8 || newPassword.length > 16) {
+        return helper.response(response, 400, 'Password must be 8-16 characters long')
+      } else if (newPassword !== confirmPassword) {
+        return helper.response(response, 400, "Password didn't match")
+      } else {
+        const checkKey = await getUserByKey(key)
+        if (checkKey.length < 1) {
+          return helper.response(response, 400, 'Invalid key')
+        } else {
+          const userId = checkKey[0].user_id
+          const span = new Date() - checkKey[0].user_updated_at
+          const minuteSpan = Math.floor(span / 1000 / 60)
+          if (minuteSpan >= 5) {
+            const setData = {
+              user_key: 0,
+              user_updated_at: new Date()
+            }
+            await patchUser(setData, userId)
+            return helper.response(response, 400, 'Key has expired. Please enter your email again')
+          } else {
+            const salt = bcrypt.genSaltSync(7)
+            const encryptPassword = bcrypt.hashSync(newPassword, salt)
+            const setData = {
+              user_password: encryptPassword,
+              user_key: 0,
+              user_updated_at: new Date()
+            }
+            await patchUser(setData, userId)
+            return helper.response(response, 200, 'Password reset successfully')
+          }
+        }
+      }
+    } catch (error) {
+      return helper.response(response, 400, 'Bad Request', error)
     }
   }
 }

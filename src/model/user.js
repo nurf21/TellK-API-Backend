@@ -57,5 +57,16 @@ module.exports = {
         }
       )
     })
+  },
+  getUserByKey: (key) => {
+    return new Promise((resolve, reject) => {
+      connection.query(
+        'SELECT * FROM user WHERE user_key = ?',
+        key,
+        (err, res) => {
+          !err ? resolve(res) : reject(new Error(err))
+        }
+      )
+    })
   }
 }

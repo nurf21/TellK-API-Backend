@@ -24,6 +24,11 @@ io.on('connection', (socket) => {
     // socket.join(data.room)
     socket.broadcast.to(data.room).emit('chatMessage', data)
   })
+
+  socket.on('changeRoom', (data) => {
+    socket.leave(data.prevRoom)
+    socket.join(data.newRoom)
+  })
 })
 
 app.use(bodyParser.json())
