@@ -15,12 +15,30 @@ module.exports = {
   getRoomByRoomId: (id) => {
     return new Promise((resolve, reject) => {
       connection.query(
-        'SELECT room.room_id, room.user_id, room.room_updated_at, user.user_name, user.user_image FROM room JOIN user ON room.user_id = user.user_id WHERE room.room_id = ? ORDER BY user.user_name ASC',
+        'SELECT room.room_id, room.user_id, room.room_updated_at, user.user_name, user.user_image FROM room JOIN user ON room.user_id = user.user_id WHERE room.room_id = ? ORDER BY room.room_updated_at DESC',
         id,
         (err, res) => {
           !err ? resolve(res) : reject(new Error(err))
         }
       )
+    })
+  },
+  searchRoom: (id, keyword) => {
+    return new Promise((resolve, reject) => {
+      connection.query(
+        'SELECT room.room_id, room.user_id, room.room_updated_at, user.user_name, user.user_image FROM room JOIN user ON room.user_id = user.user_id WHERE room.room_id = ? AND user.user_name LIKE ? ORDER BY room.room_updated_at DESC',
+        [id, `%${keyword}%`],
+        (err, res) => {
+          !err ? resolve(res) : reject(new Error(err))
+        }
+      )
+    })
+  },
+  getRecentMessage: (id) => {
+    return new Promise((resolve, reject) => {
+      connection.query('SELECT * from message WHERE room_id = ? ORDER BY message_created_at DESC LIMIT 1', id, (error, result) => {
+        !error? resolve(result[0]) : reject(new Error(error))
+      })
     })
   },
   postRoom: (setData) => {
