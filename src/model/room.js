@@ -15,7 +15,7 @@ module.exports = {
   getRoomByRoomId: (id) => {
     return new Promise((resolve, reject) => {
       connection.query(
-        'SELECT room.room_id, room.user_id, room.room_updated_at, user.user_name, user.user_image FROM room JOIN user ON room.user_id = user.user_id WHERE room.room_id = ? ORDER BY room.room_updated_at DESC',
+        'SELECT room.room_id, room.user_id, room.room_updated_at, user.user_name, user.user_image, user.user_activity FROM room JOIN user ON room.user_id = user.user_id WHERE room.room_id = ? ORDER BY room.room_updated_at DESC',
         id,
         (err, res) => {
           !err ? resolve(res) : reject(new Error(err))

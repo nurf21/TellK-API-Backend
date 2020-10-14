@@ -24,6 +24,7 @@ module.exports = {
       user_phone: req.body.user_phone,
       user_lat: '',
       user_lng: '',
+      user_activity: 0,
       user_key: 0,
       user_status: 1,
       user_created_at: new Date()
@@ -158,6 +159,7 @@ module.exports = {
     const { id } = req.params
     try {
       const setData = {
+        user_activity: 1,
         user_lat: req.body.lat,
         user_lng: req.body.lng,
         user_updated_at: new Date()
@@ -260,6 +262,19 @@ module.exports = {
       }
     } catch (error) {
       return helper.response(response, 400, 'Bad Request', error)
+    }
+  },
+  logout: async (req, res) => {
+    const { id } = req.params
+    try {
+      const setData = {
+        user_activity: 0,
+        user_updated_at: new Date()
+      }
+      const result = await patchUser(setData, id)
+      return helper.response(res, 201, 'Status Updated', result)
+    } catch (err) {
+      return helper.response(res, 400, 'Bad Request', err)
     }
   }
 }

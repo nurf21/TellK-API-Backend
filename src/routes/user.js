@@ -8,7 +8,8 @@ const {
   patchUserProfile,
   patchLocation,
   forgotPassword,
-  resetPassword
+  resetPassword,
+  logout
 } = require('../controller/user')
 const uploadImage = require('../middleware/multer')
 
@@ -23,5 +24,6 @@ router.patch('/update/image/:id', uploadImage, patchImageUser)
 router.patch('/update/profile/:id', patchUserProfile)
 router.patch('/update/location/:id', patchLocation)
 router.patch('/reset', resetPassword)
+router.patch('/logout/:id', logout)
 
 module.exports = router

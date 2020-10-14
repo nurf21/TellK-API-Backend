@@ -28,6 +28,14 @@ io.on('connection', (socket) => {
     socket.leave(data.prevRoom)
     socket.join(data.newRoom)
   })
+
+  socket.on('online', (data) => {
+    socket.broadcast.emit('setOnline', data)
+  })
+
+  socket.on('offline', (data) => {
+    socket.broadcast.emit('setOffline', data)
+  })
 })
 
 app.use(bodyParser.json())
