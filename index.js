@@ -14,14 +14,13 @@ const server = http.createServer(app)
 const io = socket(server)
 
 io.on('connection', (socket) => {
-  console.log('Socket.io connected')
-
   socket.on('joinRoom', (data) => {
     socket.join(data)
   })
 
   socket.on('roomMessage', (data) => {
     socket.broadcast.to(data.room).emit('chatMessage', data)
+    socket.broadcast.emit('notification', data)
   })
 
   socket.on('changeRoom', (data) => {
