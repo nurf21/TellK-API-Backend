@@ -36,7 +36,7 @@ module.exports = {
   },
   getRecentMessage: (id) => {
     return new Promise((resolve, reject) => {
-      connection.query('SELECT * from message WHERE room_id = ? ORDER BY message_created_at DESC LIMIT 1', id, (error, result) => {
+      connection.query('SELECT message.message_id, message.room_id, message.user_id, message.message, message.message_created_at, user.user_name FROM message JOIN user ON message.user_id = user.user_id WHERE message.room_id = ? ORDER BY message.message_created_at DESC LIMIT 1', id, (error, result) => {
         !error? resolve(result[0]) : reject(new Error(error))
       })
     })
